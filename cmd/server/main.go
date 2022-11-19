@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/virb30/first-api-go/configs"
 	"github.com/virb30/first-api-go/internal/entity"
@@ -29,5 +29,9 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Post("/products", productHandler.CreateProduct)
+	r.Get("/products/{id}", productHandler.GetProduct)
+	r.Get("/products", productHandler.GetProducts)
+	r.Put("/products/{id}", productHandler.UpdateProduct)
+	r.Delete("/products/{id}", productHandler.DeleteProduct)
 	http.ListenAndServe(":8000", r)
 }
