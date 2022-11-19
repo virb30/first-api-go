@@ -9,16 +9,21 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestCreateUser(t *testing.T) {
+func initUserDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	if err != nil {
 		t.Error(err)
 	}
 	db.AutoMigrate(&entity.User{})
+	return db
+}
+
+func TestCreateUser(t *testing.T) {
+	db := initUserDB(t)
 	user, _ := entity.NewUser("John", "j@j.com", "123456")
 	userDB := NewUser(db)
 
-	err = userDB.Create(user)
+	err := userDB.Create(user)
 	assert.Nil(t, err)
 
 	var userFound entity.User
@@ -31,14 +36,10 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestFindByEmail(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
-	if err != nil {
-		t.Error(err)
-	}
-	db.AutoMigrate(&entity.User{})
+	db := initUserDB(t)
 	user, _ := entity.NewUser("John", "j@j.com", "123456")
 	userDB := NewUser(db)
-	err = userDB.Create(user)
+	err := userDB.Create(user)
 	assert.Nil(t, err)
 
 	userFound, err := userDB.FindByEmail(user.Email)
