@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/virb30/first-api-go/configs"
 	"github.com/virb30/first-api-go/internal/entity"
 	"github.com/virb30/first-api-go/internal/infra/database"
@@ -21,9 +23,11 @@ func main() {
 		panic(err)
 	}
 	db.AutoMigrate(&entity.Product{}, &entity.User{})
-
 	productDB := database.NewProduct(db)
 	productHandler := handlers.NewProductHandler(productDB)
-	http.HandleFunc("/products", productHandler.CreateProduct)
-	http.ListenAndServe(":8000", nil)
+
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Post("/products", productHandler.CreateProduct)
+	http.ListenAndServe(":8000", r)
 }
